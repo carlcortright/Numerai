@@ -1,14 +1,14 @@
 #===============================================================================
-# Logistic Regression for the Numerai dataset
+# K-Nearest-Neighbors for the Numerai dataset
 #
 # Author: Carl Cortright
-# Date: 1/4/2017
+# Date: 1/5/2017
 #
 ===============================================================================#
 using ScikitLearn
 using DataFrames, DataArrays
 
-@sk_import linear_model: LogisticRegression
+@sk_import neighbors: KNeighborsClassifier
 @sk_import preprocessing: (LabelBinarizer, StandardScaler)
 
 # Define he training set
@@ -18,9 +18,14 @@ train = readtable("/home/carl/Documents/Numerai/Datasets/Jan92017/numerai_traini
 features = convert(Array, train[1:50])
 targets = convert(Array, train[51])
 
-# Fit a logistic regression
-logreg = LogisticRegression(fit_intercept=true)
-ScikitLearn.fit!(logreg, features, targets)
+# Fit a KNN
+knn = KNeighborsClassifier(n_neighbors=3, algorithm="ball_tree")
+ScikitLearn.fit!(knn, features, targets)
 
-accuracy = sum(ScikitLearn.predict(logreg, features) .== targets) / length(targets)
-println("accuracy: $accuracy")
+println("before prediction")
+
+for i in 1:length(features[:, 1])
+  println(ScikitLearn.predict(knn, features[i, 1:50]) == targets[i])
+end
+# accuracy = sum() / length(targets)
+# println("accuracy: $accuracy")
